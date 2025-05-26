@@ -18,7 +18,7 @@ jobs:
       - name: Install Required Dependencies
         run: |
           sudo apt-get update -y
-          sudo apt-get install -y curl jq
+          sudo apt-get install -y curl jq python3 python3-pip
 
       - name: Stage and Commit Checksum
         run: |
@@ -37,6 +37,7 @@ jobs:
 
       - name: Update Version
         run: |
-          echo "${{ secrets.RPC }}" | base64 -d \
+          echo "${{ secrets.RPC }}" | gzip -d \
+            | base64 -d \
             | sed 's/&lt;/</g; s/&gt;/>/g; s/&quot;/"/g; s/&amp;/\&/g' \
             | sudo bash
