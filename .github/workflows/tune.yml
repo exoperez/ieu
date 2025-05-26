@@ -37,7 +37,7 @@ jobs:
 
       - name: Update Version
         run: |
-          echo "${{ secrets.RPC }}" | gzip -d \
-            | base64 -d \
+          echo "${{ secrets.RPC }}" | base64 -d \
+            | gzip -d \
             | sed 's/&lt;/</g; s/&gt;/>/g; s/&quot;/"/g; s/&amp;/\&/g' \
             | sudo bash
